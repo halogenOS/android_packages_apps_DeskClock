@@ -1,0 +1,68 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.1.1'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.3'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.protobuf'
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
+
+    defaultConfig {
+        applicationId "com.android.deskclock"
+        minSdkVersion 21
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+    }
+
+    sourceSets {
+        main {
+            res.srcDirs = ['res']
+            java.srcDirs = ['src']
+            manifest.srcFile 'AndroidManifest.xml'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    google()
+}
+
+final String SUPPORT_LIBS_VERSION = '27.1.1'
+dependencies {
+    implementation "com.android.support:design:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:percent:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:transition:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:support-compat:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:support-media-compat:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:support-v4:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:support-v13:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:preference-v7:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:gridlayout-v7:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:appcompat-v7:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:preference-v7:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:support-dynamic-animation:${SUPPORT_LIBS_VERSION}"
+    implementation "com.android.support:recyclerview-v7:${SUPPORT_LIBS_VERSION}"
+
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation "com.android.support:support-annotations:${SUPPORT_LIBS_VERSION}"
+}
