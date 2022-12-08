@@ -19,7 +19,6 @@ package com.android.deskclock.alarms;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.os.Build;
-import android.os.VibrationEffect;
 import android.os.Vibrator;
 
 import com.android.deskclock.AsyncRingtonePlayer;
@@ -61,8 +60,7 @@ final class AlarmKlaxon {
 
         if (instance.mVibrate) {
             final Vibrator vibrator = getVibrator(context);
-            VibrationEffect effect = VibrationEffect.createWaveform(VIBRATE_PATTERN, 0);
-            vibrator.vibrate(effect, new AudioAttributes.Builder()
+            vibrator.vibrate(VIBRATE_PATTERN, 0, new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_ALARM)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .build());
@@ -72,7 +70,7 @@ final class AlarmKlaxon {
     }
 
     private static Vibrator getVibrator(Context context) {
-        return context.getSystemService(Vibrator.class);
+        return ((Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE));
     }
 
     private static synchronized AsyncRingtonePlayer getAsyncRingtonePlayer(Context context) {

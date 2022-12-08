@@ -29,5 +29,4 @@
     <string name="alarm_upcoming_channel">Alarmes imminentes</string>
     <string name="stopwatch_channel">Chronomètre</string>
     <string name="timer_channel">Minuteur</string>
-    <string name="dialog_permissions_dismiss">Ignorer</string>
 </resources>

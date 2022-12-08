@@ -19,7 +19,6 @@ package com.android.deskclock.alarms;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.VibrationEffect;
 import android.os.Vibrator;
 
 import androidx.fragment.app.Fragment;
@@ -97,8 +96,7 @@ public final class AlarmTimeClickHandler {
                 // Buzz the vibrator to preview the alarm firing behavior.
                 final Vibrator v = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
                 if (v.hasVibrator()) {
-                    v.vibrate(VibrationEffect.createOneShot(300,
-                            VibrationEffect.DEFAULT_AMPLITUDE));
+                    v.vibrate(300);
                 }
             }
         }

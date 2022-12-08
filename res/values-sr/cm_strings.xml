@@ -23,5 +23,4 @@
         <item>Одбаци</item>
         <item>Ништа</item>
     </string-array>
-    <string name="dialog_permissions_dismiss">Одбаци</string>
 </resources>

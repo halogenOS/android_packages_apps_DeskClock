@@ -21,5 +21,4 @@
         <item>Avvisa</item>
         <item>Ingenting</item>
     </string-array>
-    <string name="dialog_permissions_dismiss">Avvisa</string>
 </resources>
