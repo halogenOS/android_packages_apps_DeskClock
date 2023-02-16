@@ -19,7 +19,6 @@ package com.android.deskclock.widget;
 import android.app.ActionBar;
 import android.graphics.BlendMode;
 import android.graphics.BlendModeColorFilter;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +31,6 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.FragmentActivity;
 
 import com.android.deskclock.R;
-
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.resources.TextAppearanceConfig;
@@ -129,22 +127,6 @@ public class CollapsingToolbarBaseActivity extends FragmentActivity {
             finishAfterTransition();
         }
         return true;
-    }
-
-    /**
-     * Returns an instance of collapsing toolbar.
-     */
-    @Nullable
-    public CollapsingToolbarLayout getCollapsingToolbarLayout() {
-        return mCollapsingToolbarLayout;
-    }
-
-    /**
-     * Return an instance of app bar.
-     */
-    @Nullable
-    public AppBarLayout getAppBarLayout() {
-        return mAppBarLayout;
     }
 
     private void disableCollapsingToolbarLayoutScrollingBehavior() {

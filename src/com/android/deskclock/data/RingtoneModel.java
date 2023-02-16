@@ -16,6 +16,9 @@
 
 package com.android.deskclock.data;
 
+import static android.media.AudioManager.STREAM_ALARM;
+import static android.media.RingtoneManager.TITLE_COLUMN_INDEX;
+
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -44,9 +47,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-
-import static android.media.AudioManager.STREAM_ALARM;
-import static android.media.RingtoneManager.TITLE_COLUMN_INDEX;
 
 /**
  * All ringtone data is accessed via this model.
@@ -155,9 +155,9 @@ final class RingtoneModel {
                 final Uri ringtoneUri = ringtoneManager.getRingtoneUri(cursor.getPosition());
                 mRingtoneTitles.put(ringtoneUri, ringtoneTitle);
             }
-        } catch (Throwable ignored) {
+        } catch (Throwable t) {
             // best attempt only
-            LogUtils.e("Error loading ringtone title cache", ignored);
+            LogUtils.e("Error loading ringtone title cache", t);
         }
     }
 

@@ -16,9 +16,13 @@
 
 package com.android.deskclock.uidata;
 
+import static com.android.deskclock.Utils.enforceMainLooper;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+
+import androidx.annotation.IdRes;
 import androidx.annotation.IntegerRes;
 import androidx.annotation.StringRes;
 
@@ -29,8 +33,6 @@ import com.android.deskclock.stopwatch.StopwatchFragment;
 import com.android.deskclock.timer.TimerFragment;
 
 import java.util.Calendar;
-
-import static com.android.deskclock.Utils.enforceMainLooper;
 
 /**
  * All application-wide user interface data is accessible through this singleton.
@@ -45,7 +47,7 @@ public final class UiDataModel {
         STOPWATCH(StopwatchFragment.class, R.id.page_stopwatch, R.string.menu_stopwatch);
 
         private final String mFragmentClassName;
-        private final @IntegerRes int mPageResId;
+        private final @IdRes int mPageResId;
         private final @StringRes int mLabelResId;
 
         Tab(Class fragmentClass, @IntegerRes int pageResId, @StringRes int labelResId) {
@@ -55,7 +57,7 @@ public final class UiDataModel {
         }
 
         public String getFragmentClassName() { return mFragmentClassName; }
-        public @IntegerRes int getPageResId() { return mPageResId; }
+        public @IdRes int getPageResId() { return mPageResId; }
         public @StringRes int getLabelResId() { return mLabelResId; }
     }
 
@@ -136,25 +138,6 @@ public final class UiDataModel {
     }
 
     /**
-     * This method is intended to be used when formatting numbers occurs in a hotspot such as the
-     * update loop of a timer or stopwatch. It returns cached results when possible in order to
-     * provide speed and limit garbage to be collected by the virtual machine.
-     *
-     * @param negative force a minus sign (-) onto the display, even if {@code value} is {@code 0}
-     * @param value a positive integer to format as a String
-     * @param length the length of the String; zeroes are padded to match this length. If
-     *      {@code negative} is {@code true} the return value will contain a minus sign and a total
-     *      length of {@code length + 1}.
-     * @return the {@code value} formatted as a String in the current locale and padded to the
-     *      requested {@code length}
-     * @throws IllegalArgumentException if {@code value} is negative
-     */
-    public String getFormattedNumber(boolean negative, int value, int length) {
-        enforceMainLooper();
-        return mFormattedStringModel.getFormattedNumber(negative, value, length);
-    }
-
-    /**
      * @param calendarDay any of the following values
      *                     <ul>
      *                     <li>{@link Calendar#SUNDAY}</li>
@@ -203,6 +186,14 @@ public final class UiDataModel {
     }
 
     /**
+     * @return the duration in milliseconds of medium animations
+     */
+    public long getMediumAnimationDuration() {
+        enforceMainLooper();
+        return mContext.getResources().getInteger(android.R.integer.config_mediumAnimTime);
+    }
+
+    /**
      * @return the duration in milliseconds of long animations
      */
     public long getLongAnimationDuration() {
@@ -236,24 +227,6 @@ public final class UiDataModel {
     public int getTabCount() {
         enforceMainLooper();
         return mTabModel.getTabCount();
-    }
-
-    /**
-     * @param ordinal the ordinal of the tab
-     * @return the tab at the given {@code ordinal}
-     */
-    public Tab getTab(int ordinal) {
-        enforceMainLooper();
-        return mTabModel.getTab(ordinal);
-    }
-
-    /**
-     * @param position the position of the tab in the user interface
-     * @return the tab at the given {@code ordinal}
-     */
-    public Tab getTabAt(int position) {
-        enforceMainLooper();
-        return mTabModel.getTabAt(position);
     }
 
     /**
@@ -342,14 +315,6 @@ public final class UiDataModel {
     public void addQuarterHourCallback(Runnable runnable) {
         enforceMainLooper();
         mPeriodicCallbackModel.addQuarterHourCallback(runnable);
-    }
-
-    /**
-     * @param runnable to be called every hour
-     */
-    public void addHourCallback(Runnable runnable) {
-        enforceMainLooper();
-        mPeriodicCallbackModel.addHourCallback(runnable);
     }
 
     /**

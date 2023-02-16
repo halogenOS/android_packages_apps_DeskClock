@@ -23,7 +23,6 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -42,8 +41,6 @@ import com.android.deskclock.data.TimeZones;
 import com.android.deskclock.data.Weekdays;
 import com.android.deskclock.ringtone.RingtonePickerActivity;
 import com.android.deskclock.widget.CollapsingToolbarBaseActivity;
-
-import java.util.List;
 
 /**
  * Settings for the Alarm Clock.
@@ -104,7 +101,8 @@ public final class SettingsActivity extends CollapsingToolbarBaseActivity {
         @Override
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
-            int paddingLeftRight = Math.round(getResources().getDimension(R.dimen.settings_padding) *
+            int paddingLeftRight = Math.round(
+                    getResources().getDimension(R.dimen.settings_padding) *
                     getResources().getDisplayMetrics().densityDpi / 160f);
             view.setPadding(paddingLeftRight, view.getPaddingTop(), paddingLeftRight,
                     view.getPaddingBottom());
@@ -221,7 +219,7 @@ public final class SettingsActivity extends CollapsingToolbarBaseActivity {
          */
         private void loadTimeZoneList() {
             final TimeZones timezones = DataModel.getDataModel().getTimeZones();
-            final ListPreference homeTimezonePref = (ListPreference) findPreference(KEY_HOME_TZ);
+            final ListPreference homeTimezonePref = findPreference(KEY_HOME_TZ);
             homeTimezonePref.setEntryValues(timezones.getTimeZoneIds());
             homeTimezonePref.setEntries(timezones.getTimeZoneNames());
             homeTimezonePref.setSummary(homeTimezonePref.getEntry());
@@ -229,19 +227,16 @@ public final class SettingsActivity extends CollapsingToolbarBaseActivity {
         }
 
         private void refresh() {
-            final ListPreference autoSilencePref =
-                    (ListPreference) findPreference(KEY_AUTO_SILENCE);
+            final ListPreference autoSilencePref = findPreference(KEY_AUTO_SILENCE);
             String delay = autoSilencePref.getValue();
             updateAutoSnoozeSummary(autoSilencePref, delay);
             autoSilencePref.setOnPreferenceChangeListener(this);
 
-            final SimpleMenuPreference clockStylePref = (SimpleMenuPreference)
-                    findPreference(KEY_CLOCK_STYLE);
+            final SimpleMenuPreference clockStylePref = findPreference(KEY_CLOCK_STYLE);
             clockStylePref.setSummary(clockStylePref.getEntry());
             clockStylePref.setOnPreferenceChangeListener(this);
 
-            final SimpleMenuPreference volumeButtonsPref = (SimpleMenuPreference)
-                    findPreference(KEY_VOLUME_BUTTONS);
+            final SimpleMenuPreference volumeButtonsPref = findPreference(KEY_VOLUME_BUTTONS);
             volumeButtonsPref.setSummary(volumeButtonsPref.getEntry());
             volumeButtonsPref.setOnPreferenceChangeListener(this);
 
@@ -253,19 +248,18 @@ public final class SettingsActivity extends CollapsingToolbarBaseActivity {
                     ((TwoStatePreference) autoHomeClockPref).isChecked();
             autoHomeClockPref.setOnPreferenceChangeListener(this);
 
-            final ListPreference homeTimezonePref = (ListPreference) findPreference(KEY_HOME_TZ);
+            final ListPreference homeTimezonePref = findPreference(KEY_HOME_TZ);
             homeTimezonePref.setEnabled(autoHomeClockEnabled);
             refreshListPreference(homeTimezonePref);
 
-            refreshListPreference((ListPreference) findPreference(KEY_ALARM_CRESCENDO));
-            refreshListPreference((ListPreference) findPreference(KEY_TIMER_CRESCENDO));
-            refreshListPreference((ListPreference) findPreference(KEY_ALARM_SNOOZE));
+            refreshListPreference(findPreference(KEY_ALARM_CRESCENDO));
+            refreshListPreference(findPreference(KEY_TIMER_CRESCENDO));
+            refreshListPreference(findPreference(KEY_ALARM_SNOOZE));
 
             final Preference dateAndTimeSetting = findPreference(KEY_DATE_TIME);
             dateAndTimeSetting.setOnPreferenceClickListener(this);
 
-            final SimpleMenuPreference weekStartPref = (SimpleMenuPreference)
-                    findPreference(KEY_WEEK_START);
+            final SimpleMenuPreference weekStartPref = findPreference(KEY_WEEK_START);
             // Set the default value programmatically
             final Weekdays.Order weekdayOrder = DataModel.getDataModel().getWeekdayOrder();
             final Integer firstDay = weekdayOrder.getCalendarDays().get(0);
@@ -279,37 +273,32 @@ public final class SettingsActivity extends CollapsingToolbarBaseActivity {
             timerRingtonePref.setOnPreferenceClickListener(this);
             timerRingtonePref.setSummary(DataModel.getDataModel().getTimerRingtoneTitle());
 
-            SensorManager sensorManager = (SensorManager)
-                    getActivity().getSystemService(Context.SENSOR_SERVICE);
+            final SimpleMenuPreference flipActionPref = findPreference(KEY_FLIP_ACTION);
+            setupFlipOrShakeAction(flipActionPref);
 
-            final SimpleMenuPreference flipActionPref =
-                    (SimpleMenuPreference) findPreference(KEY_FLIP_ACTION);
-            if (flipActionPref != null) {
-                List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ORIENTATION);
-                if (sensorList.size() < 1) { // This will be true if no orientation sensor
-                    flipActionPref.setValue("0"); // Turn it off
-                } else {
-                    flipActionPref.setSummary(flipActionPref.getEntry());
-                    flipActionPref.setOnPreferenceChangeListener(this);
-                }
-            }
+            final SimpleMenuPreference shakeActionPref = findPreference(KEY_SHAKE_ACTION);
+            setupFlipOrShakeAction(shakeActionPref);
+        }
 
-            final SimpleMenuPreference shakeActionPref =
-                    (SimpleMenuPreference) findPreference(KEY_SHAKE_ACTION);
-            if (shakeActionPref != null) {
-                List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
-                if (sensorList.size() < 1) { // This will be true if no accelerometer sensor
-                    shakeActionPref.setValue("0"); // Turn it off
+        private void setupFlipOrShakeAction(SimpleMenuPreference preference) {
+            if (preference != null) {
+                SensorManager sensorManager = (SensorManager)
+                        getActivity().getSystemService(Context.SENSOR_SERVICE);
+                if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) == null) {
+                    preference.setValue("0");  // Turn it off
+                    preference.setVisible(false);
                 } else {
-                    shakeActionPref.setSummary(shakeActionPref.getEntry());
-                    shakeActionPref.setOnPreferenceChangeListener(this);
+                    preference.setSummary(preference.getEntry());
+                    preference.setOnPreferenceChangeListener(this);
                 }
             }
         }
 
         private void refreshListPreference(ListPreference preference) {
-            preference.setSummary(preference.getEntry());
-            preference.setOnPreferenceChangeListener(this);
+            if (preference != null) {
+                preference.setSummary(preference.getEntry());
+                preference.setOnPreferenceChangeListener(this);
+            }
         }
 
         private void updateAutoSnoozeSummary(ListPreference listPref, String delay) {

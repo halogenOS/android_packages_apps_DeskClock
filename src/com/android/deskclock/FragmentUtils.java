@@ -18,8 +18,7 @@
 package com.android.deskclock;
 
 import android.util.ArrayMap;
-import android.view.View;
-import android.view.ViewGroup;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -102,9 +101,9 @@ public final class FragmentUtils {
 
     public void showFragment(UiDataModel.Tab tab) {
         hideAllFragments();
-        Fragment fragment = getDeskClockFragment(tab);
+        DeskClockFragment fragment = getDeskClockFragment(tab);
         mFragmentManager.beginTransaction().show(fragment).commit();
-        mCurrentPrimaryItem = (DeskClockFragment) fragment;
+        mCurrentPrimaryItem = fragment;
     }
 
     public DeskClockFragment getCurrentFragment() {

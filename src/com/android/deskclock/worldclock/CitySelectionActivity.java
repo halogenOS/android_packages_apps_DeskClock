@@ -16,9 +16,10 @@
 
 package com.android.deskclock.worldclock;
 
+import static android.view.Menu.NONE;
+
 import android.content.Context;
 import android.os.Bundle;
-import androidx.appcompat.widget.SearchView;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.ArraySet;
@@ -34,6 +35,10 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.SearchView;
 
 import com.android.deskclock.BaseActivity;
 import com.android.deskclock.DropShadowController;
@@ -57,8 +62,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
-
-import static android.view.Menu.NONE;
 
 /**
  * This activity allows the user to alter the cities selected for display.
@@ -105,8 +108,10 @@ public final class CitySelectionActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.cities_activity);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar == null) return;
         mSearchMenuItemController =
-                new SearchMenuItemController(getSupportActionBar().getThemedContext(),
+                new SearchMenuItemController(actionBar.getThemedContext(),
                         new SearchView.OnQueryTextListener() {
                             @Override
                             public boolean onQueryTextSubmit(String query) {
@@ -127,14 +132,14 @@ public final class CitySelectionActivity extends BaseActivity {
                 .addMenuItemController(new SettingsMenuItemController(this))
                 .addMenuItemController(MenuItemControllerFactory.getInstance()
                         .buildMenuItemControllers(this));
-        mCitiesList = (ListView) findViewById(R.id.cities_list);
+        mCitiesList = findViewById(R.id.cities_list);
         mCitiesList.setAdapter(mCitiesAdapter);
 
         updateFastScrolling();
     }
 
     @Override
-    public void onSaveInstanceState(Bundle bundle) {
+    public void onSaveInstanceState(@NonNull Bundle bundle) {
         super.onSaveInstanceState(bundle);
         mSearchMenuItemController.saveInstance(bundle);
     }
@@ -349,10 +354,10 @@ public final class CitySelectionActivity extends BaseActivity {
                     // Inflate a new view if necessary.
                     if (view == null) {
                         view = mInflater.inflate(R.layout.city_list_item, parent, false);
-                        final TextView index = (TextView) view.findViewById(R.id.index);
-                        final TextView name = (TextView) view.findViewById(R.id.city_name);
-                        final TextView time = (TextView) view.findViewById(R.id.city_time);
-                        final CheckBox selected = (CheckBox) view.findViewById(R.id.city_onoff);
+                        final TextView index = view.findViewById(R.id.index);
+                        final TextView name = view.findViewById(R.id.city_name);
+                        final TextView time = view.findViewById(R.id.city_time);
+                        final CheckBox selected = view.findViewById(R.id.city_onoff);
                         view.setTag(new CityItemHolder(index, name, time, selected));
                     }
 
@@ -416,7 +421,7 @@ public final class CitySelectionActivity extends BaseActivity {
 
         @Override
         public void onClick(View v) {
-            final CheckBox b = (CheckBox) v.findViewById(R.id.city_onoff);
+            final CheckBox b = v.findViewById(R.id.city_onoff);
             b.setChecked(!b.isChecked());
         }
 
@@ -454,8 +459,8 @@ public final class CitySelectionActivity extends BaseActivity {
                     }
                 }
 
-                mSectionHeaders = sections.toArray(new String[sections.size()]);
-                mSectionHeaderPositions = positions.toArray(new Integer[positions.size()]);
+                mSectionHeaders = sections.toArray(new String[0]);
+                mSectionHeaderPositions = positions.toArray(new Integer[0]);
             }
             return mSectionHeaders;
         }
@@ -497,7 +502,7 @@ public final class CitySelectionActivity extends BaseActivity {
             mIs24HoursMode = DateFormat.is24HourFormat(mContext);
 
             // Refresh the user selections.
-            final List<City> selected = (List<City>) DataModel.getDataModel().getSelectedCities();
+            final List<City> selected = DataModel.getDataModel().getSelectedCities();
             mUserSelectedCities.clear();
             mUserSelectedCities.addAll(selected);
             mOriginalUserSelectionCount = selected.size();

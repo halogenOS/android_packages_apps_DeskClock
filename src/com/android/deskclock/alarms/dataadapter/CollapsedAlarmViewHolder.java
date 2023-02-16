@@ -35,8 +35,6 @@ import com.android.deskclock.events.Events;
 import com.android.deskclock.provider.Alarm;
 import com.android.deskclock.provider.AlarmInstance;
 
-import java.util.List;
-
 /**
  * A ViewHolder containing views for an alarm item in collapsed stated.
  */
@@ -49,38 +47,26 @@ public final class CollapsedAlarmViewHolder extends AlarmItemViewHolder {
     private CollapsedAlarmViewHolder(View itemView) {
         super(itemView);
 
-        alarmLabel = (TextView) itemView.findViewById(R.id.label);
+        alarmLabel = itemView.findViewById(R.id.label);
 
         // Expand handler
-        itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Events.sendAlarmEvent(R.string.action_expand_implied, R.string.label_deskclock);
-                getItemHolder().expand();
-            }
+        itemView.setOnClickListener(v -> {
+            Events.sendAlarmEvent(R.string.action_expand_implied, R.string.label_deskclock);
+            getItemHolder().expand();
         });
-        alarmLabel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Events.sendAlarmEvent(R.string.action_expand_implied, R.string.label_deskclock);
-                getItemHolder().expand();
-            }
+        alarmLabel.setOnClickListener(v -> {
+            Events.sendAlarmEvent(R.string.action_expand_implied, R.string.label_deskclock);
+            getItemHolder().expand();
         });
-        arrow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Events.sendAlarmEvent(R.string.action_expand, R.string.label_deskclock);
-                getItemHolder().expand();
-            }
+        arrow.setOnClickListener(v -> {
+            Events.sendAlarmEvent(R.string.action_expand, R.string.label_deskclock);
+            getItemHolder().expand();
         });
         // Edit time handler
-        clock.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getItemHolder().getAlarmTimeClickHandler().onClockClicked(getItemHolder().item);
-                Events.sendAlarmEvent(R.string.action_expand_implied, R.string.label_deskclock);
-                getItemHolder().expand();
-            }
+        clock.setOnClickListener(v -> {
+            getItemHolder().getAlarmTimeClickHandler().onClockClicked(getItemHolder().item);
+            Events.sendAlarmEvent(R.string.action_expand_implied, R.string.label_deskclock);
+            getItemHolder().expand();
         });
 
         itemView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
@@ -122,13 +108,6 @@ public final class CollapsedAlarmViewHolder extends AlarmItemViewHolder {
     private void bindAnnotations(Alarm alarm) {
         annotationsAlpha = alarm.enabled ? CLOCK_ENABLED_ALPHA : CLOCK_DISABLED_ALPHA;
         setChangingViewsAlpha(annotationsAlpha);
-    }
-
-    @Override
-    public Animator onAnimateChange(List<Object> payloads, int fromLeft, int fromTop, int fromRight,
-                                    int fromBottom, long duration) {
-        /* There are no possible partial animations for collapsed view holders. */
-        return null;
     }
 
     @Override
@@ -195,10 +174,9 @@ public final class CollapsedAlarmViewHolder extends AlarmItemViewHolder {
         alphaAnimatorSet.setDuration(standardDelay);
         alphaAnimatorSet.setStartDelay(duration - standardDelay);
 
-        final View oldView = oldHolder.itemView;
         final View newView = itemView;
-        final Animator boundsAnimator = AnimatorUtils.getBoundsAnimator(newView, oldView, newView)
-                .setDuration(duration);
+        final Animator boundsAnimator = AnimatorUtils.getBoundsAnimator(newView, oldHolder.itemView,
+                        newView).setDuration(duration);
         boundsAnimator.setInterpolator(AnimatorUtils.INTERPOLATOR_FAST_OUT_SLOW_IN);
 
         final Animator arrowAnimation = ObjectAnimator.ofFloat(arrow, View.TRANSLATION_Y, 0f)

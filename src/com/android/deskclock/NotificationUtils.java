@@ -16,7 +16,6 @@
 
 package com.android.deskclock;
 
-import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT;
 import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_HIGH;
 import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_LOW;
 
@@ -24,9 +23,8 @@ import android.app.NotificationChannel;
 import android.content.Context;
 import android.util.ArraySet;
 import android.util.Log;
-import androidx.core.app.NotificationManagerCompat;
 
-import com.android.deskclock.Utils;
+import androidx.core.app.NotificationManagerCompat;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -73,7 +71,7 @@ public class NotificationUtils {
     private static final int ENABLE_LIGHTS = 0x02;
     private static final int ENABLE_VIBRATION = 0x04;
 
-    private static Map<String, int[]> CHANNEL_PROPS = new HashMap<String, int[]>();
+    private static final Map<String, int[]> CHANNEL_PROPS = new HashMap<>();
     static {
         CHANNEL_PROPS.put(ALARM_MISSED_NOTIFICATION_CHANNEL_ID, new int[]{
                 R.string.alarm_missed_channel,
@@ -108,7 +106,7 @@ public class NotificationUtils {
             return;
         }
 
-        int[] properties = (int[]) CHANNEL_PROPS.get(id);
+        int[] properties = CHANNEL_PROPS.get(id);
         int nameId = properties[0];
         int importance = properties[1];
         NotificationChannel channel = new NotificationChannel(

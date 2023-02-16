@@ -16,17 +16,18 @@
 
 package com.android.deskclock.uidata;
 
+import static android.view.View.LAYOUT_DIRECTION_RTL;
+import static com.android.deskclock.uidata.UiDataModel.Tab;
+
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+
 import androidx.annotation.Keep;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
-import static android.view.View.LAYOUT_DIRECTION_RTL;
-import static com.android.deskclock.uidata.UiDataModel.Tab;
 
 /**
  * All tab data is accessed via this model.
@@ -121,14 +122,14 @@ final class TabModel {
 
             // Notify of the tab change.
             for (TabListener tl : mTabListeners) {
-                tl.selectedTabChanged(oldSelectedTab, tab);
+                tl.selectedTabChanged(tab);
             }
 
             // Notify of the vertical scroll position change if there is one.
             final boolean tabScrolledToTop = isTabScrolledToTop(tab);
             if (isTabScrolledToTop(oldSelectedTab) != tabScrolledToTop) {
                 for (TabScrollListener tsl : mTabScrollListeners) {
-                    tsl.selectedTabScrollToTopChanged(tab, tabScrolledToTop);
+                    tsl.selectedTabScrollToTopChanged(tabScrolledToTop);
                 }
             }
         }
@@ -163,7 +164,7 @@ final class TabModel {
             mTabScrolledToTop[tab.ordinal()] = scrolledToTop;
             if (tab == getSelectedTab()) {
                 for (TabScrollListener tsl : mTabScrollListeners) {
-                    tsl.selectedTabScrollToTopChanged(tab, scrolledToTop);
+                    tsl.selectedTabScrollToTopChanged(scrolledToTop);
                 }
             }
         }

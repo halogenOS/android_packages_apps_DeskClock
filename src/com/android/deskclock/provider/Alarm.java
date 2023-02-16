@@ -26,6 +26,8 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
 import androidx.loader.content.CursorLoader;
 
 import com.android.deskclock.R;
@@ -196,16 +198,6 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
 
         return null;
     }
-    /**
-     * Get alarm for the {@code contentUri}.
-     *
-     * @param cr provides access to the content model
-     * @param contentUri the {@link #getContentUri deeplink} for the desired alarm
-     * @return instance if found, null otherwise
-     */
-    public static Alarm getAlarm(ContentResolver cr, Uri contentUri) {
-        return getAlarm(cr, ContentUris.parseId(contentUri));
-    }
 
     /**
      * Get all alarms given conditions.
@@ -250,11 +242,10 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         return alarm;
     }
 
-    public static boolean updateAlarm(ContentResolver contentResolver, Alarm alarm) {
-        if (alarm.id == Alarm.INVALID_ID) return false;
+    public static void updateAlarm(ContentResolver contentResolver, Alarm alarm) {
+        if (alarm.id == Alarm.INVALID_ID) return;
         ContentValues values = createContentValues(alarm);
-        long rowsUpdated = contentResolver.update(getContentUri(alarm.id), values, null, null);
-        return rowsUpdated == 1;
+        contentResolver.update(getContentUri(alarm.id), values, null, null);
     }
 
     public static boolean deleteAlarm(ContentResolver contentResolver, long alarmId) {
@@ -337,13 +328,6 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         label = p.readString();
         alert = p.readParcelable(null);
         deleteAfterUse = p.readInt() == 1;
-    }
-
-    /**
-     * @return the deeplink that identifies this alarm
-     */
-    public Uri getContentUri() {
-        return getContentUri(id);
     }
 
     public String getLabelOrDefault(Context context) {
@@ -451,6 +435,7 @@ public final class Alarm implements Parcelable, ClockContract.AlarmsColumns {
         return Long.valueOf(id).hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Alarm{" +

@@ -16,6 +16,14 @@
 
 package com.android.deskclock;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+import static android.appwidget.AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY;
+import static android.appwidget.AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD;
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+import static android.graphics.Bitmap.Config.ARGB_8888;
+
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.AlarmManager.AlarmClockInfo;
@@ -35,7 +43,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
-import android.provider.Settings;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -45,14 +52,16 @@ import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.util.ArraySet;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
 
 import androidx.annotation.AnyRes;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
@@ -69,14 +78,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
-import static android.app.PendingIntent.FLAG_IMMUTABLE;
-import static android.appwidget.AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY;
-import static android.appwidget.AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD;
-import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
-import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
-import static android.graphics.Bitmap.Config.ARGB_8888;
 
 public class Utils {
 
@@ -127,15 +128,6 @@ public class Utils {
     }
 
     /**
-     * Calculate the amount by which the radius of a CircleTimerView should be offset by any
-     * of the extra painted objects.
-     */
-    public static float calculateRadiusOffset(
-            float strokeSize, float dotStrokeSize, float markerStrokeSize) {
-        return Math.max(strokeSize, Math.max(dotStrokeSize, markerStrokeSize));
-    }
-
-    /**
      * Configure the clock that is visible to display seconds. The clock that is not visible never
      * displays seconds to avoid it scheduling unnecessary ticking runnables.
      */
@@ -160,17 +152,17 @@ public class Utils {
      * Set whether the digital or analog clock should be displayed in the application.
      * Returns the view to be displayed.
      */
-    public static View setClockStyle(View digitalClock, View analogClock) {
+    public static void setClockStyle(View digitalClock, View analogClock) {
         final DataModel.ClockStyle clockStyle = DataModel.getDataModel().getClockStyle();
         switch (clockStyle) {
             case ANALOG:
                 digitalClock.setVisibility(View.GONE);
                 analogClock.setVisibility(View.VISIBLE);
-                return analogClock;
+                return;
             case DIGITAL:
                 digitalClock.setVisibility(View.VISIBLE);
                 analogClock.setVisibility(View.GONE);
-                return digitalClock;
+                return;
         }
 
         throw new IllegalStateException("unexpected clock style: " + clockStyle);
@@ -180,17 +172,17 @@ public class Utils {
      * For screensavers to set whether the digital or analog clock should be displayed.
      * Returns the view to be displayed.
      */
-    public static View setScreensaverClockStyle(View digitalClock, View analogClock) {
+    public static void setScreensaverClockStyle(View digitalClock, View analogClock) {
         final DataModel.ClockStyle clockStyle = DataModel.getDataModel().getScreensaverClockStyle();
         switch (clockStyle) {
             case ANALOG:
                 digitalClock.setVisibility(View.GONE);
                 analogClock.setVisibility(View.VISIBLE);
-                return analogClock;
+                return;
             case DIGITAL:
                 digitalClock.setVisibility(View.VISIBLE);
                 analogClock.setVisibility(View.GONE);
-                return digitalClock;
+                return;
         }
 
         throw new IllegalStateException("unexpected clock style: " + clockStyle);
@@ -264,8 +256,8 @@ public class Utils {
      * Clock views can call this to refresh their alarm to the next upcoming value.
      */
     public static void refreshAlarm(Context context, View clock) {
-        final TextView nextAlarmIconView = (TextView) clock.findViewById(R.id.nextAlarmIcon);
-        final TextView nextAlarmView = (TextView) clock.findViewById(R.id.nextAlarm);
+        final TextView nextAlarmIconView = clock.findViewById(R.id.nextAlarmIcon);
+        final TextView nextAlarmView = clock.findViewById(R.id.nextAlarm);
         if (nextAlarmView == null) {
             return;
         }
@@ -285,7 +277,7 @@ public class Utils {
     }
 
     public static void setClockIconTypeface(View clock) {
-        final TextView nextAlarmIconView = (TextView) clock.findViewById(R.id.nextAlarmIcon);
+        final TextView nextAlarmIconView = clock.findViewById(R.id.nextAlarmIcon);
         nextAlarmIconView.setTypeface(UiDataModel.getUiDataModel().getAlarmIconTypeface());
     }
 
@@ -293,7 +285,7 @@ public class Utils {
      * Clock views can call this to refresh their date.
      **/
     public static void updateDate(String dateSkeleton, String descriptionSkeleton, View clock) {
-        final TextView dateDisplay = (TextView) clock.findViewById(R.id.date);
+        final TextView dateDisplay = clock.findViewById(R.id.date);
         if (dateDisplay == null) {
             return;
         }
@@ -306,6 +298,23 @@ public class Utils {
         dateDisplay.setText(new SimpleDateFormat(datePattern, l).format(now));
         dateDisplay.setVisibility(View.VISIBLE);
         dateDisplay.setContentDescription(new SimpleDateFormat(descriptionPattern, l).format(now));
+    }
+
+    public static void updateDateGravity(View clockFrame) {
+        View dateAndNextAlarm = clockFrame.findViewById(R.id.date_and_next_alarm_time);
+        LinearLayout.LayoutParams lp =
+                (LinearLayout.LayoutParams)dateAndNextAlarm.getLayoutParams();
+
+        final DataModel.ClockStyle clockStyle = DataModel.getDataModel().getClockStyle();
+        switch (clockStyle) {
+            case ANALOG:
+                lp.gravity = Gravity.CENTER;
+                break;
+            case DIGITAL:
+                lp.gravity = Gravity.START;
+                break;
+        }
+        dateAndNextAlarm.setLayoutParams(lp);
     }
 
     /***
@@ -552,7 +561,8 @@ public class Utils {
         }
 
         @Override
-        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+        public void onInitializeAccessibilityNodeInfo(@NonNull View host,
+                                                      @NonNull AccessibilityNodeInfoCompat info) {
             super.onInitializeAccessibilityNodeInfo(host, info);
             if (mIsAlwaysAccessibilityVisible) {
                 info.setVisibleToUser(true);

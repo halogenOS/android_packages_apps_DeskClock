@@ -16,6 +16,14 @@
 
 package com.android.deskclock.stopwatch;
 
+import static android.R.attr.state_activated;
+import static android.R.attr.state_pressed;
+import static android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM;
+import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+import static com.android.deskclock.uidata.UiDataModel.Tab.STOPWATCH;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -58,14 +66,6 @@ import com.android.deskclock.events.Events;
 import com.android.deskclock.uidata.TabListener;
 import com.android.deskclock.uidata.UiDataModel;
 import com.android.deskclock.uidata.UiDataModel.Tab;
-
-import static android.R.attr.state_activated;
-import static android.R.attr.state_pressed;
-import static android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM;
-import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
-import static com.android.deskclock.uidata.UiDataModel.Tab.STOPWATCH;
 
 /**
  * Fragment that shows the stopwatch and recorded laps.
@@ -126,8 +126,8 @@ public final class StopwatchFragment extends DeskClockFragment {
         mGradientItemDecoration = new GradientItemDecoration(getActivity());
 
         final View v = inflater.inflate(R.layout.stopwatch_fragment, container, false);
-        mTime = (StopwatchCircleView) v.findViewById(R.id.stopwatch_circle);
-        mLapsList = (RecyclerView) v.findViewById(R.id.laps_list);
+        mTime = v.findViewById(R.id.stopwatch_circle);
+        mLapsList = v.findViewById(R.id.laps_list);
         ((SimpleItemAnimator) mLapsList.getItemAnimator()).setSupportsChangeAnimations(false);
         mLapsList.setLayoutManager(mLapsLayoutManager);
 
@@ -144,8 +144,8 @@ public final class StopwatchFragment extends DeskClockFragment {
         mLapsList.setAdapter(mLapsAdapter);
 
         // Timer text serves as a virtual start/stop button.
-        mMainTimeText = (TextView) v.findViewById(R.id.stopwatch_time_text);
-        mHundredthsTimeText = (TextView) v.findViewById(R.id.stopwatch_hundredths_text);
+        mMainTimeText = v.findViewById(R.id.stopwatch_time_text);
+        mHundredthsTimeText = v.findViewById(R.id.stopwatch_hundredths_text);
         mStopwatchTextController = new StopwatchTextController(mMainTimeText, mHundredthsTimeText);
         mStopwatchWrapper = v.findViewById(R.id.stopwatch_time_wrapper);
 
@@ -301,20 +301,8 @@ public final class StopwatchFragment extends DeskClockFragment {
     }
 
     @Override
-    public final int getFabTargetVisibility() {
+    public int getFabTargetVisibility() {
         return View.VISIBLE;
-    }
-
-    /**
-     * @param color the newly installed app window color
-     */
-    protected void onAppColorChanged(@ColorInt int color) {
-        if (mGradientItemDecoration != null) {
-            mGradientItemDecoration.updateGradientColors(color);
-        }
-        if (mLapsList != null) {
-            mLapsList.invalidateItemDecorations();
-        }
     }
 
     /**
@@ -359,7 +347,6 @@ public final class StopwatchFragment extends DeskClockFragment {
         final String text = mLapsAdapter.getShareText();
 
         @SuppressLint("InlinedApi")
-        @SuppressWarnings("deprecation")
         final Intent shareIntent = new Intent(Intent.ACTION_SEND)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
                 .putExtra(Intent.EXTRA_SUBJECT, subject)
@@ -575,7 +562,7 @@ public final class StopwatchFragment extends DeskClockFragment {
      */
     private final class TabWatcher implements TabListener {
         @Override
-        public void selectedTabChanged(Tab oldSelectedTab, Tab newSelectedTab) {
+        public void selectedTabChanged(Tab newSelectedTab) {
             adjustWakeLock();
         }
     }
@@ -598,10 +585,6 @@ public final class StopwatchFragment extends DeskClockFragment {
                 updateUI(FAB_MORPH | BUTTONS_IMMEDIATE);
             }
         }
-
-        @Override
-        public void lapAdded(Lap lap) {
-        }
     }
 
     /**
@@ -621,7 +604,7 @@ public final class StopwatchFragment extends DeskClockFragment {
     /**
      * Checks if the user is pressing inside of the stopwatch circle.
      */
-    private final class CircleTouchListener implements View.OnTouchListener {
+    private static final class CircleTouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(View view, MotionEvent event) {
             final int actionMasked = event.getActionMasked();
@@ -649,7 +632,7 @@ public final class StopwatchFragment extends DeskClockFragment {
     private final class ScrollPositionWatcher extends RecyclerView.OnScrollListener
             implements View.OnLayoutChangeListener {
         @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
             setTabScrolledToTop(Utils.isScrolledToTop(mLapsList));
         }
 
@@ -710,12 +693,11 @@ public final class StopwatchFragment extends DeskClockFragment {
             updateGradientColors(ThemeUtils.resolveColor(context, android.R.attr.windowBackground));
 
             final Resources resources = context.getResources();
-            final float fabHeight = resources.getDimensionPixelSize(R.dimen.fab_container_height);
             mGradientHeight = resources.getDimensionPixelSize(R.dimen.fab_container_height);
         }
 
         @Override
-        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+        public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
             super.onDrawOver(c, parent, state);
 
             final int w = parent.getWidth();

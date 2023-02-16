@@ -16,18 +16,16 @@
 
 package com.android.deskclock.settings;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.CheckBoxPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.CheckBoxPreference;
 
 import com.android.deskclock.R;
-import com.android.deskclock.Utils;
 import com.android.deskclock.data.DataModel;
 
 /**
@@ -46,12 +44,9 @@ public final class ScreensaverSettingsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected (MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
-            default:
-                break;
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -89,13 +84,13 @@ public final class ScreensaverSettingsActivity extends AppCompatActivity {
         }
 
         private void refresh() {
-            final ListPreference clockStylePref = (ListPreference) findPreference(KEY_CLOCK_STYLE);
-            final CheckBoxPreference nightModePref =
-                    (CheckBoxPreference) findPreference(KEY_NIGHT_MODE);
-
-            clockStylePref.setSummary(clockStylePref.getEntry());
-            clockStylePref.setOnPreferenceChangeListener(this);
-            nightModePref.setChecked(DataModel.getDataModel().getScreensaverNightModeOn());
+            final ListPreference clockStylePref = findPreference(KEY_CLOCK_STYLE);
+            final CheckBoxPreference nightModePref = findPreference(KEY_NIGHT_MODE);
+            if (clockStylePref != null && nightModePref != null) {
+                clockStylePref.setSummary(clockStylePref.getEntry());
+                clockStylePref.setOnPreferenceChangeListener(this);
+                nightModePref.setChecked(DataModel.getDataModel().getScreensaverNightModeOn());
+            }
         }
     }
 }

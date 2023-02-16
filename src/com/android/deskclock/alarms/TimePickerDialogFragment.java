@@ -19,16 +19,13 @@ package com.android.deskclock.alarms;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.widget.TimePicker;
-import androidx.appcompat.app.AlertDialog;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-
-import com.android.deskclock.Utils;
 
 import java.util.Calendar;
 
@@ -45,8 +42,8 @@ public class TimePickerDialogFragment extends DialogFragment {
     private static final String ARG_HOUR = TAG + "_hour";
     private static final String ARG_MINUTE = TAG + "_minute";
 
+    @NonNull
     @Override
-    @SuppressWarnings("deprecation")
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final OnTimeSetListener listener = ((OnTimeSetListener) getParentFragment());
 
@@ -56,12 +53,9 @@ public class TimePickerDialogFragment extends DialogFragment {
         final int minute = args.getInt(ARG_MINUTE, now.get(Calendar.MINUTE));
 
         final Context context = getActivity();
-        return new TimePickerDialog(context, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                listener.onTimeSet(TimePickerDialogFragment.this, hourOfDay, minute);
-            }
-        }, hour, minute, DateFormat.is24HourFormat(context));
+        return new TimePickerDialog(context, (view, hourOfDay, minute1) ->
+                listener.onTimeSet(hourOfDay, minute1),
+                hour, minute, DateFormat.is24HourFormat(context));
     }
 
     public static void show(Fragment fragment) {
@@ -74,7 +68,7 @@ public class TimePickerDialogFragment extends DialogFragment {
         }
 
         final FragmentManager manager = parentFragment.getChildFragmentManager();
-        if (manager == null || manager.isDestroyed()) {
+        if (manager.isDestroyed()) {
             return;
         }
 
@@ -111,11 +105,9 @@ public class TimePickerDialogFragment extends DialogFragment {
     public interface OnTimeSetListener {
         /**
          * Called when the user is done setting a new time and the dialog has closed.
-         *
-         * @param fragment  the fragment associated with this listener
          * @param hourOfDay the hour that was set
          * @param minute    the minute that was set
          */
-        void onTimeSet(TimePickerDialogFragment fragment, int hourOfDay, int minute);
+        void onTimeSet(int hourOfDay, int minute);
     }
 }

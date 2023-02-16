@@ -22,11 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.database.ContentObserver;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
-import android.provider.Settings;
 import android.service.dreams.DreamService;
 import android.view.View;
 import android.view.ViewTreeObserver.OnPreDrawListener;
@@ -88,8 +83,8 @@ public final class Screensaver extends DreamService {
 
         mContentView = findViewById(R.id.saver_container);
         mMainClockView = mContentView.findViewById(R.id.main_clock);
-        mDigitalClock = (TextClock) mMainClockView.findViewById(R.id.digital_clock);
-        mAnalogClock = (AnalogClock) mMainClockView.findViewById(R.id.analog_clock);
+        mDigitalClock = mMainClockView.findViewById(R.id.digital_clock);
+        mAnalogClock = mMainClockView.findViewById(R.id.analog_clock);
 
         setClockStyle();
         Utils.setClockIconTypeface(mContentView);

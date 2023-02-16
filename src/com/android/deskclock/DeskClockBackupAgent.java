@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
+
 import androidx.annotation.NonNull;
 
 import com.android.deskclock.alarms.AlarmStateManager;
@@ -47,11 +48,11 @@ public class DeskClockBackupAgent extends BackupAgent {
 
     @Override
     public void onBackup(ParcelFileDescriptor oldState, BackupDataOutput data,
-            ParcelFileDescriptor newState) throws IOException { }
+            ParcelFileDescriptor newState) { }
 
     @Override
     public void onRestore(BackupDataInput data, int appVersionCode,
-            ParcelFileDescriptor newState) throws IOException { }
+            ParcelFileDescriptor newState) { }
 
     @Override
     public void onRestoreFile(@NonNull ParcelFileDescriptor data, long size, File destination,

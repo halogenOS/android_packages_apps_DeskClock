@@ -67,28 +67,21 @@ public abstract class AlarmItemViewHolder extends ItemAdapter.ItemViewHolder<Ala
     public AlarmItemViewHolder(View itemView) {
         super(itemView);
 
-        clock = (TextTime) itemView.findViewById(R.id.digital_clock);
-        onOff = (CompoundButton) itemView.findViewById(R.id.onoff);
-        arrow = (ImageView) itemView.findViewById(R.id.arrow);
-        daysOfWeek = (TextView) itemView.findViewById(R.id.days_of_week);
+        clock = itemView.findViewById(R.id.digital_clock);
+        onOff = itemView.findViewById(R.id.onoff);
+        arrow = itemView.findViewById(R.id.arrow);
+        daysOfWeek = itemView.findViewById(R.id.days_of_week);
         preemptiveDismissButton = itemView.findViewById(R.id.preemptive_dismiss_button);
-        ellipsizeLayout  = (EllipsizeLayout) itemView.findViewById(R.id.ellipse_layout);
-        preemptiveDismissButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final AlarmInstance alarmInstance = getItemHolder().getAlarmInstance();
-                if (alarmInstance != null) {
-                    getItemHolder().getAlarmTimeClickHandler().dismissAlarmInstance(alarmInstance);
-                }
+        ellipsizeLayout  = itemView.findViewById(R.id.ellipse_layout);
+        preemptiveDismissButton.setOnClickListener(v -> {
+            final AlarmInstance alarmInstance = getItemHolder().getAlarmInstance();
+            if (alarmInstance != null) {
+                getItemHolder().getAlarmTimeClickHandler().dismissAlarmInstance(alarmInstance);
             }
         });
-        onOff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+        onOff.setOnCheckedChangeListener((compoundButton, checked) ->
                 getItemHolder().getAlarmTimeClickHandler().setAlarmEnabled(
-                        getItemHolder().item, checked);
-            }
-        });
+                        getItemHolder().item, checked));
     }
 
     @Override
@@ -113,7 +106,7 @@ public abstract class AlarmItemViewHolder extends ItemAdapter.ItemViewHolder<Ala
         clock.setTypeface(oldTypeface, alarm.enabled ? Typeface.BOLD : Typeface.NORMAL);
     }
 
-    protected boolean bindPreemptiveDismissButton(Context context, Alarm alarm,
+    protected void bindPreemptiveDismissButton(Context context, Alarm alarm,
             AlarmInstance alarmInstance) {
         final boolean canBind = alarm.canPreemptivelyDismiss() && alarmInstance != null;
         if (canBind) {
@@ -128,7 +121,6 @@ public abstract class AlarmItemViewHolder extends ItemAdapter.ItemViewHolder<Ala
             preemptiveDismissButton.setVisibility(View.GONE);
             preemptiveDismissButton.setClickable(false);
         }
-        return canBind;
     }
 
     protected void bindRepeatText(Context context, Alarm alarm) {

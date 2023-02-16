@@ -19,7 +19,6 @@ package com.android.deskclock;
 import android.view.KeyEvent;
 import android.widget.ImageView;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -66,13 +65,6 @@ public abstract class DeskClockFragment extends Fragment implements FabContainer
 
     @Override
     public void onMorphFab(@NonNull ImageView fab) {
-        // Do nothing here, only in derived classes
-    }
-
-    /**
-     * @param color the newly installed app window color
-     */
-    protected void onAppColorChanged(@ColorInt int color) {
         // Do nothing here, only in derived classes
     }
 

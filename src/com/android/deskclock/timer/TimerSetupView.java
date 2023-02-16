@@ -16,14 +16,16 @@
 
 package com.android.deskclock.timer;
 
+import static com.android.deskclock.FabContainer.FAB_REQUEST_FOCUS;
+import static com.android.deskclock.FabContainer.FAB_SHRINK_AND_EXPAND;
+
 import android.content.Context;
 import android.content.res.Resources;
-
-import androidx.annotation.IdRes;
-
 import android.text.BidiFormatter;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -31,6 +33,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.IdRes;
 
 import com.android.deskclock.FabContainer;
 import com.android.deskclock.FormattedTextUtils;
@@ -40,16 +44,13 @@ import com.android.deskclock.uidata.UiDataModel;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import static com.android.deskclock.FabContainer.FAB_REQUEST_FOCUS;
-import static com.android.deskclock.FabContainer.FAB_SHRINK_AND_EXPAND;
-
 public class TimerSetupView extends LinearLayout implements View.OnClickListener,
         View.OnLongClickListener {
 
     private final int[] mInput = { 0, 0, 0, 0, 0, 0 };
 
     private int mInputPointer = -1;
-    private CharSequence mTimeTemplate;
+    private final CharSequence mTimeTemplate;
 
     private TextView mTimeView;
     private View mDeleteView;
@@ -86,19 +87,19 @@ public class TimerSetupView extends LinearLayout implements View.OnClickListener
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        mTimeView = (TextView) findViewById(R.id.timer_setup_time);
+        mTimeView = findViewById(R.id.timer_setup_time);
         mDeleteView = findViewById(R.id.timer_setup_delete);
         mDigitViews = new TextView[] {
-                (TextView) findViewById(R.id.timer_setup_digit_0),
-                (TextView) findViewById(R.id.timer_setup_digit_1),
-                (TextView) findViewById(R.id.timer_setup_digit_2),
-                (TextView) findViewById(R.id.timer_setup_digit_3),
-                (TextView) findViewById(R.id.timer_setup_digit_4),
-                (TextView) findViewById(R.id.timer_setup_digit_5),
-                (TextView) findViewById(R.id.timer_setup_digit_6),
-                (TextView) findViewById(R.id.timer_setup_digit_7),
-                (TextView) findViewById(R.id.timer_setup_digit_8),
-                (TextView) findViewById(R.id.timer_setup_digit_9),
+                findViewById(R.id.timer_setup_digit_0),
+                findViewById(R.id.timer_setup_digit_1),
+                findViewById(R.id.timer_setup_digit_2),
+                findViewById(R.id.timer_setup_digit_3),
+                findViewById(R.id.timer_setup_digit_4),
+                findViewById(R.id.timer_setup_digit_5),
+                findViewById(R.id.timer_setup_digit_6),
+                findViewById(R.id.timer_setup_digit_7),
+                findViewById(R.id.timer_setup_digit_8),
+                findViewById(R.id.timer_setup_digit_9),
         };
 
         // Initialize the digit buttons.
@@ -165,27 +166,26 @@ public class TimerSetupView extends LinearLayout implements View.OnClickListener
     }
 
     private int getDigitForId(@IdRes int id) {
-        switch (id) {
-            case R.id.timer_setup_digit_0:
-                return 0;
-            case R.id.timer_setup_digit_1:
-                return 1;
-            case R.id.timer_setup_digit_2:
-                return 2;
-            case R.id.timer_setup_digit_3:
-                return 3;
-            case R.id.timer_setup_digit_4:
-                return 4;
-            case R.id.timer_setup_digit_5:
-                return 5;
-            case R.id.timer_setup_digit_6:
-                return 6;
-            case R.id.timer_setup_digit_7:
-                return 7;
-            case R.id.timer_setup_digit_8:
-                return 8;
-            case R.id.timer_setup_digit_9:
-                return 9;
+        if (id == R.id.timer_setup_digit_0) {
+            return 0;
+        } else if (id == R.id.timer_setup_digit_1) {
+            return 1;
+        } else if (id == R.id.timer_setup_digit_2) {
+            return 2;
+        } else if (id == R.id.timer_setup_digit_3) {
+            return 3;
+        } else if (id == R.id.timer_setup_digit_4) {
+            return 4;
+        } else if (id == R.id.timer_setup_digit_5) {
+            return 5;
+        } else if (id == R.id.timer_setup_digit_6) {
+            return 6;
+        } else if (id == R.id.timer_setup_digit_7) {
+            return 7;
+        } else if (id == R.id.timer_setup_digit_8) {
+            return 8;
+        } else if (id == R.id.timer_setup_digit_9) {
+            return 9;
         }
         throw new IllegalArgumentException("Invalid id: " + id);
     }
@@ -196,12 +196,21 @@ public class TimerSetupView extends LinearLayout implements View.OnClickListener
         final int hours = mInput[5] * 10 + mInput[4];
 
         final UiDataModel uidm = UiDataModel.getUiDataModel();
-        mTimeView.setText(TextUtils.expandTemplate(mTimeTemplate,
+        SpannableString text = new SpannableString(TextUtils.expandTemplate(mTimeTemplate,
                 uidm.getFormattedNumber(hours, 2),
                 uidm.getFormattedNumber(minutes, 2),
                 uidm.getFormattedNumber(seconds, 2)));
 
         final Resources r = getResources();
+        int endIdx = text.length();
+        int startIdx = seconds > 0 ? 8 : endIdx;
+        startIdx = minutes > 0 ? 4 : startIdx;
+        startIdx = hours > 0 ? 0 : startIdx;
+        if (startIdx != endIdx) {
+            final int highlightColor = r.getColor(R.color.accent_color, getContext().getTheme());
+            text.setSpan(new ForegroundColorSpan(highlightColor), startIdx, endIdx, 0);
+        }
+        mTimeView.setText(text);
         mTimeView.setContentDescription(r.getString(R.string.timer_setup_description,
                 r.getQuantityString(R.plurals.hours, hours, hours),
                 r.getQuantityString(R.plurals.minutes, minutes, minutes),

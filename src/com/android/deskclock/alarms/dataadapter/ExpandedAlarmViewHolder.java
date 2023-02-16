@@ -71,11 +71,11 @@ public final class ExpandedAlarmViewHolder extends AlarmItemViewHolder {
 
         mHasVibrator = hasVibrator;
 
-        delete = (TextView) itemView.findViewById(R.id.delete);
-        vibrate = (CheckBox) itemView.findViewById(R.id.vibrate_onoff);
-        ringtone = (TextView) itemView.findViewById(R.id.choose_ringtone);
-        editLabel = (TextView) itemView.findViewById(R.id.edit_label);
-        repeatDays = (ConstraintLayout) itemView.findViewById(R.id.repeat_days);
+        delete = itemView.findViewById(R.id.delete);
+        vibrate = itemView.findViewById(R.id.vibrate_onoff);
+        ringtone = itemView.findViewById(R.id.choose_ringtone);
+        editLabel = itemView.findViewById(R.id.edit_label);
+        repeatDays = itemView.findViewById(R.id.repeat_days);
 
         final Context context = itemView.getContext();
         itemView.setBackground(new LayerDrawable(new Drawable[] {
@@ -84,7 +84,6 @@ public final class ExpandedAlarmViewHolder extends AlarmItemViewHolder {
         }));
 
         // Build button for each day.
-        final LayoutInflater inflater = LayoutInflater.from(context);
         final List<Integer> weekdays = DataModel.getDataModel().getWeekdayOrder().getCalendarDays();
         dayButtons = new CompoundButton[] {
                 itemView.findViewById(R.id.day_button_0),
@@ -103,67 +102,39 @@ public final class ExpandedAlarmViewHolder extends AlarmItemViewHolder {
         }
 
         // Collapse handler
-        itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Events.sendAlarmEvent(R.string.action_collapse_implied, R.string.label_deskclock);
-                getItemHolder().collapse();
-            }
+        itemView.setOnClickListener(v -> {
+            Events.sendAlarmEvent(R.string.action_collapse_implied, R.string.label_deskclock);
+            getItemHolder().collapse();
         });
-        arrow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Events.sendAlarmEvent(R.string.action_collapse, R.string.label_deskclock);
-                getItemHolder().collapse();
-            }
+        arrow.setOnClickListener(v -> {
+            Events.sendAlarmEvent(R.string.action_collapse, R.string.label_deskclock);
+            getItemHolder().collapse();
         });
         // Edit time handler
-        clock.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getAlarmTimeClickHandler().onClockClicked(getItemHolder().item);
-            }
-        });
+        clock.setOnClickListener(v ->
+                getAlarmTimeClickHandler().onClockClicked(getItemHolder().item));
         // Edit label handler
-        editLabel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getAlarmTimeClickHandler().onEditLabelClicked(getItemHolder().item);
-            }
-        });
+        editLabel.setOnClickListener(v ->
+                getAlarmTimeClickHandler().onEditLabelClicked(getItemHolder().item));
         // Vibrator checkbox handler
-        vibrate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        vibrate.setOnClickListener(v ->
                 getAlarmTimeClickHandler().setAlarmVibrationEnabled(getItemHolder().item,
-                        ((CheckBox) v).isChecked());
-            }
-        });
+                ((CheckBox) v).isChecked()));
         // Ringtone editor handler
-        ringtone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getAlarmTimeClickHandler().onRingtoneClicked(context, getItemHolder().item);
-            }
-        });
+        ringtone.setOnClickListener(v ->
+                getAlarmTimeClickHandler().onRingtoneClicked(context, getItemHolder().item));
         // Delete alarm handler
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getAlarmTimeClickHandler().onDeleteClicked(getItemHolder());
-                v.announceForAccessibility(context.getString(R.string.alarm_deleted));
-            }
+        delete.setOnClickListener(v -> {
+            getAlarmTimeClickHandler().onDeleteClicked(getItemHolder());
+            v.announceForAccessibility(context.getString(R.string.alarm_deleted));
         });
         // Day buttons handler
         for (int i = 0; i < dayButtons.length; i++) {
             final int buttonIndex = i;
-            dayButtons[i].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final boolean isChecked = ((CompoundButton) view).isChecked();
-                    getAlarmTimeClickHandler().setDayOfWeekEnabled(getItemHolder().item,
-                            isChecked, buttonIndex);
-                }
+            dayButtons[i].setOnClickListener(view -> {
+                final boolean isChecked = ((CompoundButton) view).isChecked();
+                getAlarmTimeClickHandler().setDayOfWeekEnabled(getItemHolder().item,
+                        isChecked, buttonIndex);
             });
         }
 
@@ -237,13 +208,6 @@ public final class ExpandedAlarmViewHolder extends AlarmItemViewHolder {
 
     private AlarmTimeClickHandler getAlarmTimeClickHandler() {
         return getItemHolder().getAlarmTimeClickHandler();
-    }
-
-    @Override
-    public Animator onAnimateChange(List<Object> payloads, int fromLeft, int fromTop, int fromRight,
-                                    int fromBottom, long duration) {
-        /* There are no possible partial animations for expanded view holders. */
-        return null;
     }
 
     @Override
@@ -324,7 +288,6 @@ public final class ExpandedAlarmViewHolder extends AlarmItemViewHolder {
         startDelay += delayIncrement;
         if (daysVisible) {
             repeatDaysAnimation.setStartDelay(startDelay);
-            startDelay += delayIncrement;
         }
 
         final AnimatorSet animatorSet = new AnimatorSet();
@@ -353,9 +316,9 @@ public final class ExpandedAlarmViewHolder extends AlarmItemViewHolder {
     }
 
     private Animator createExpandingAnimator(AlarmItemViewHolder oldHolder, long duration) {
-        final View oldView = oldHolder.itemView;
         final View newView = itemView;
-        final Animator boundsAnimator = AnimatorUtils.getBoundsAnimator(newView, oldView, newView);
+        final Animator boundsAnimator = AnimatorUtils.getBoundsAnimator(newView, oldHolder.itemView,
+                newView);
         boundsAnimator.setDuration(duration);
         boundsAnimator.setInterpolator(AnimatorUtils.INTERPOLATOR_FAST_OUT_SLOW_IN);
 

@@ -23,11 +23,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager.WakeLock;
 
-import com.android.deskclock.alarms.AlarmStateManager;
 import com.android.deskclock.alarms.AlarmNotifications;
+import com.android.deskclock.alarms.AlarmStateManager;
 import com.android.deskclock.controller.Controller;
 import com.android.deskclock.data.DataModel;
-import com.android.deskclock.NotificationUtils;
 import com.android.deskclock.provider.AlarmInstance;
 
 import java.util.Calendar;
@@ -137,20 +136,17 @@ public class AlarmInitReceiver extends BroadcastReceiver {
             }
         }
 
-        AsyncHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // Process restored data if any exists
-                    if (!DeskClockBackupAgent.processRestoredData(context)) {
-                        // Update all the alarm instances on time change event
-                        AlarmStateManager.fixAlarmInstances(context);
-                    }
-                } finally {
-                    result.finish();
-                    wl.release();
-                    LogUtils.v("AlarmInitReceiver finished");
+        AsyncHandler.post(() -> {
+            try {
+                // Process restored data if any exists
+                if (!DeskClockBackupAgent.processRestoredData(context)) {
+                    // Update all the alarm instances on time change event
+                    AlarmStateManager.fixAlarmInstances(context);
                 }
+            } finally {
+                result.finish();
+                wl.release();
+                LogUtils.v("AlarmInitReceiver finished");
             }
         });
     }

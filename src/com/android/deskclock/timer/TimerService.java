@@ -16,6 +16,8 @@
 
 package com.android.deskclock.timer;
 
+import static com.android.deskclock.uidata.UiDataModel.Tab.TIMERS;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -27,8 +29,6 @@ import com.android.deskclock.data.DataModel;
 import com.android.deskclock.data.Timer;
 import com.android.deskclock.events.Events;
 import com.android.deskclock.uidata.UiDataModel;
-
-import static com.android.deskclock.uidata.UiDataModel.Tab.TIMERS;
 
 /**
  * <p>This service exists solely to allow {@link android.app.AlarmManager} and timer notifications
@@ -99,11 +99,6 @@ public final class TimerService extends Service {
                 .putExtra(EXTRA_TIMER_ID, timerId);
     }
 
-    public static Intent createUpdateNotificationIntent(Context context) {
-        return new Intent(context, TimerService.class)
-                .setAction(ACTION_UPDATE_NOTIFICATION);
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -148,20 +143,7 @@ public final class TimerService extends Service {
             // Perform the action on the timer.
             if (action != null) {
                 switch (action) {
-                    case ACTION_SHOW_TIMER: {
-                        Events.sendTimerEvent(R.string.action_show, label);
-
-                        // Change to the timers tab.
-                        UiDataModel.getUiDataModel().setSelectedTab(TIMERS);
-
-                        // Open DeskClock which is now positioned on the timers tab and show
-                        // the timer in question.
-                        final Intent showTimers = new Intent(this, DeskClock.class)
-                                .putExtra(EXTRA_TIMER_ID, timerId)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(showTimers);
-                        break;
-                    } case ACTION_START_TIMER: {
+                    case ACTION_START_TIMER: {
                         Events.sendTimerEvent(R.string.action_start, label);
                         DataModel.getDataModel().startTimer(this, timer);
                         break;
