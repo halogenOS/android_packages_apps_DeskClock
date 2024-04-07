@@ -1,29 +1,14 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.0'
-    }
+plugins {
+    id("com.android.application") version "8.1.2" apply true
 }
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-apply plugin: 'com.android.application'
 
 android {
-    compileSdk 33
+    namespace 'com.android.deskclock'
+    compileSdk 34
 
     defaultConfig {
         minSdkVersion 27
-        targetSdkVersion 33
+        targetSdkVersion 34
     }
 
     sourceSets {
@@ -39,13 +24,16 @@ android {
         }
     }
 
+    buildFeatures {
+        buildConfig true
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
 
     lint {
-        ignore 'ProtectedPermissions', 'ExtraTranslation', 'ImpliedQuantity', 'MissingQuantity', 'MissingTranslation'
+        lintConfig = file("lint.xml")
     }
 }
 
