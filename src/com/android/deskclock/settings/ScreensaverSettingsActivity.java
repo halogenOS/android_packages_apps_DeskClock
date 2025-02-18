@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 The Android Open Source Project
+ * Copyright (C) 2023-2025 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +18,13 @@
 package com.android.deskclock.settings;
 
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.MenuItem;
 
-import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreferenceCompat;
 import androidx.preference.SeekBarPreference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.android.deskclock.R;
 import com.android.deskclock.data.DataModel;
@@ -44,6 +45,7 @@ public final class ScreensaverSettingsActivity extends CollapsingToolbarBaseActi
     public static final String KEY_SHOW_AMPM = "screensaver_show_ampm";
     public static final String KEY_BOLD_TEXT = "screensaver_bold_text";
     private static final String PREFS_FRAGMENT_TAG = "prefs_fragment";
+    private static final String CLOCK_STYLE_DIGITAL = "digital";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +60,7 @@ public final class ScreensaverSettingsActivity extends CollapsingToolbarBaseActi
     }
 
     @Override
-    public boolean onOptionsItemSelected (MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
@@ -93,20 +95,21 @@ public final class ScreensaverSettingsActivity extends CollapsingToolbarBaseActi
         public boolean onPreferenceChange(Preference pref, Object newValue) {
             switch (pref.getKey()) {
                 case KEY_CLOCK_STYLE:
-                    final ListPreference clockStylePref = (ListPreference) pref;
+                    final SimpleMenuPreference clockStylePref = (SimpleMenuPreference) pref;
                     final int clockStyleindex = clockStylePref.findIndexOfValue((String) newValue);
                     clockStylePref.setSummary(clockStylePref.getEntries()[clockStyleindex]);
+                    setVisibility(newValue.equals(CLOCK_STYLE_DIGITAL));
                     break;
                 case KEY_NIGHT_MODE_COLOR:
                 case KEY_CLOCK_COLOR:
-                    final ListPreference clockColorPref = (ListPreference) pref;
+                    final SimpleMenuPreference clockColorPref = (SimpleMenuPreference) pref;
                     final int clockColorindex = clockColorPref.findIndexOfValue((String) newValue);
                     clockColorPref.setSummary(clockColorPref.getEntries()[clockColorindex]);
                     break;
                 case KEY_NIGHT_MODE_BRIGHTNESS:
                     final SeekBarPreference clockBrightness = (SeekBarPreference) pref;
                     final String progress = getResources().getString(
-                            R.string.clock_brightness_percentage, String.valueOf(newValue) );
+                            R.string.clock_brightness_percentage, String.valueOf(newValue));
                     clockBrightness.setSummary(progress);
                     break;
             }
@@ -114,9 +117,9 @@ public final class ScreensaverSettingsActivity extends CollapsingToolbarBaseActi
         }
 
         private void refresh() {
-            final ListPreference clockStylePref = findPreference(KEY_CLOCK_STYLE);
-            final ListPreference clockColorPref = findPreference(KEY_CLOCK_COLOR);
-            final ListPreference nightModeColorPref = findPreference(KEY_NIGHT_MODE_COLOR);
+            final SimpleMenuPreference clockStylePref = findPreference(KEY_CLOCK_STYLE);
+            final SimpleMenuPreference clockColorPref = findPreference(KEY_CLOCK_COLOR);
+            final SimpleMenuPreference nightModeColorPref = findPreference(KEY_NIGHT_MODE_COLOR);
             final SwitchPreferenceCompat nightModePref = findPreference(KEY_NIGHT_MODE);
             final SwitchPreferenceCompat nightModeDndPref = findPreference(KEY_NIGHT_MODE_DND);
             final SwitchPreferenceCompat showAmPmPref = findPreference(KEY_SHOW_AMPM);
@@ -152,6 +155,7 @@ public final class ScreensaverSettingsActivity extends CollapsingToolbarBaseActi
             }
             if (showAmPmPref != null) {
                 showAmPmPref.setChecked(DataModel.getDataModel().getScreensaverShowAmPmOn());
+                showAmPmPref.setEnabled(!DateFormat.is24HourFormat(getContext()));
             }
             if (boldTextPref != null) {
                 boldTextPref.setChecked(DataModel.getDataModel().getScreensaverBoldTextOn());
@@ -164,6 +168,19 @@ public final class ScreensaverSettingsActivity extends CollapsingToolbarBaseActi
                 nightModeBrightness.setSummary(progress);
                 nightModeBrightness.setOnPreferenceChangeListener(this);
                 nightModeBrightness.setUpdatesContinuously(true);
+            }
+            setVisibility(DataModel.getDataModel().getScreensaverClockStyle() ==
+                    DataModel.ClockStyle.DIGITAL);
+        }
+
+        private void setVisibility(boolean isDigitalClock) {
+            final SwitchPreferenceCompat showAmPmPref = findPreference(KEY_SHOW_AMPM);
+            final SwitchPreferenceCompat boldTextPref = findPreference(KEY_BOLD_TEXT);
+            if (showAmPmPref != null) {
+                showAmPmPref.setVisible(isDigitalClock);
+            }
+            if (boldTextPref != null) {
+                boldTextPref.setVisible(isDigitalClock);
             }
         }
     }
