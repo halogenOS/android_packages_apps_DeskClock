@@ -56,7 +56,6 @@ public class TimerViewHolder extends RecyclerView.ViewHolder {
 
     public void onBind(int timerId) {
         mTimerId = timerId;
-        updateTime();
     }
 
     private void setLayoutParams(View view) {
@@ -78,8 +77,10 @@ public class TimerViewHolder extends RecyclerView.ViewHolder {
         final TimerItem view = mTimerItem;
         if (view != null) {
             final Timer timer = getTimer();
-            view.update(timer);
-            return !timer.isReset();
+            if (timer != null) {
+                view.update(timer);
+                return !timer.isReset();
+            }
         }
 
         return false;
