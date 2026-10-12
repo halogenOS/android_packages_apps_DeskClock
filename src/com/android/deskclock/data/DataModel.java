@@ -216,6 +216,7 @@ public final class DataModel {
             mStopwatchModel = new StopwatchModel(mContext, prefs, mNotificationModel);
             mTimerModel = new TimerModel(mContext, prefs, mSettingsModel, mRingtoneModel,
                     mNotificationModel);
+            TimerStateBroadcaster.start(mContext, mTimerModel);
         }
     }
 
